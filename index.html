@@ -21,7 +21,7 @@
     nav a.btn{background:var(--accent); color:#06101c; padding:8px 12px; border-radius:12px; font-weight:600}
     main{max-width:var(--max); margin:30px auto; padding:0 18px}
 
-    .hero{display:grid; grid-template-columns:1.2fr .8fr; gap:24px; align-items:center}
+    .hero{display:grid; grid-template-columns:1fr; gap:24px; align-items:center}
     .card{background:var(--panel); border:1px solid #20242c; border-radius:var(--br); box-shadow:var(--shadow); padding:22px}
     h1{font-size:clamp(26px,3.5vw,36px); margin:0 0 12px}
     h2{font-size:clamp(22px,3vw,28px); margin:26px 0 10px}
@@ -32,7 +32,7 @@
     .grid{display:grid; gap:16px}
     .grid.cols-2{grid-template-columns:repeat(2,1fr)}
     .grid.cols-3{grid-template-columns:repeat(3,1fr)}
-    @media (max-width:900px){ .hero{grid-template-columns:1fr} .grid.cols-2,.grid.cols-3{grid-template-columns:1fr} }
+    @media (max-width:900px){ .grid.cols-2,.grid.cols-3{grid-template-columns:1fr} }
 
     table{width:100%; border-collapse:collapse; background:var(--panel); border:1px solid #20242c; border-radius:var(--br); overflow:hidden}
     th,td{padding:12px 10px; border-bottom:1px solid #20242c; text-align:left; vertical-align:top}
@@ -69,7 +69,7 @@
   </header>
 
   <main>
-    <!-- HERO -->
+    <!-- INTRO -->
     <section class="hero">
       <div class="card">
         <h1>Fundamental ML Pipeline (FNN / RF / ANFIS) for Next-Quarter Return Direction</h1>
@@ -83,53 +83,60 @@
           <li><strong>Role:</strong> Individual contributor (design, coding, testing, backtest)</li>
           <li><strong>Core outputs:</strong> Ratio fetch/compute, FNN/RF training, inference API, Crew AI decision logic, daily backtest</li>
           <li><strong>Name:</strong> Sudharshan Goud Bojja</li>
-          <li><strong>Branch:</strong> <code>bojja-sprint4</code></li>
-          <li><strong>Last updated:</strong> August 17, 2025 (IST)</li>
         </ul>
       </div>
+    </section>
 
-      <div class="card">
-        <h2 id="overview">Project Overview</h2>
-        <p><strong>Goal:</strong> Predict the <em>sign</em> (up/down) of next-quarter returns from fundamental ratios and return a single trade recommendation.</p>
-        <p><strong>Models:</strong> FNN, RF, ANFIS (optional if library present). All consume the same 3-feature vector.</p>
-        <p><strong>Decision:</strong> Majority-vote/threshold via Crew AI; internal HOLD is used as a guard when probabilities don’t form a majority, but the exposed recommendation is BUY/SELL by rule.</p>
-        <p><strong>Inference JSON:</strong></p>
-        <pre>{
+    <!-- PROJECT OVERVIEW (moved below intro) -->
+    <section id="overview" class="card">
+      <h2>Project Overview</h2>
+      <p><strong>Goal:</strong> Predict the <em>sign</em> (up/down) of next-quarter returns from fundamental ratios and return a single trade recommendation.</p>
+      <p><strong>Models:</strong> FNN, RF, ANFIS (optional if library present). All consume the same 3-feature vector.</p>
+      <p><strong>Decision:</strong> Majority-vote/threshold via Crew AI; internal HOLD is a guard when probabilities don’t form a majority. Exposed recommendation follows the BUY/SELL rule.</p>
+      <p><strong>Inference JSON:</strong></p>
+      <pre>{
   "ticker": "AAPL",
   "fnn_prob": 0.65,
   "rf_prob": 0.59,
   "anfis_prob": 0.71
 }</pre>
-      </div>
     </section>
 
-    <!-- SPRINT OBJECTIVES -->
+    <!-- SPRINT OBJECTIVES (from task-hour files) -->
     <section id="sprints" class="card">
-      <h2>Sprint Objectives (high level)</h2>
+      <h2>Sprint Objectives</h2>
       <table aria-label="Sprint objectives">
         <thead>
-          <tr><th>Sprint</th><th>Objective</th><th>Primary Output</th></tr>
+          <tr><th>Sprint</th><th>Objective</th><th>Primary Outputs</th></tr>
         </thead>
         <tbody>
           <tr>
             <td>Sprint 1 — MVP</td>
-            <td>Fetch quarterly financials and compute ratios; make a minimal pipeline run end-to-end.</td>
-            <td>Ratio retrieval + ratio JSON; basic CLI flow.</td>
+            <td>Stand up a minimal pipeline with reliable fundamentals ingestion and ratio computation.</td>
+            <td>
+              Quarterly data fetch via yfinance; ratios (ROE, D/E, Net Margin) with NaN guards; initial tests and working CLI flow.
+            </td>
           </tr>
           <tr>
-            <td>Sprint 2 — Models & API</td>
-            <td>Define/train FNN & RF; add ANFIS path; implement inference API returning probabilities.</td>
-            <td>FNN/RF training & validation; ModelInferAgent JSON.</td>
+            <td>Sprint 2 — Models & Inference API</td>
+            <td>Add model training and an inference endpoint that returns probabilities.</td>
+            <td>
+              FNN architecture + training loop; RF with basic hyperparameter tuning; optional ANFIS path; <code>ModelInferAgent</code> emitting <code>{ fnn_prob, rf_prob, anfis_prob }</code>.
+            </td>
           </tr>
           <tr>
-            <td>Sprint 3 — Decision</td>
-            <td>Implement Crew AI DecisionAgent with thresholded majority logic; cover edge probabilities.</td>
-            <td>Decision agent returning BUY/SELL; strict JSON handling.</td>
+            <td>Sprint 3 — Decision Layer</td>
+            <td>Implement Crew AI majority/threshold decision logic and harden JSON handling.</td>
+            <td>
+              DecisionAgent with thresholded majority vote; strict JSON parsing; edge-case handling and retries; initial integration sanity checks.
+            </td>
           </tr>
           <tr>
             <td>Sprint 4 — Integration & Backtest</td>
-            <td>Integrate pipeline; build daily signal/backtest harness with next-day execution; summarize performance.</td>
-            <td>nqr_backtesting.py, equity curve + summary stats.</td>
+            <td>Integrate, validate end-to-end, and run a daily backtest with next-day execution.</td>
+            <td>
+              E2E integration tests/validation; daily features → LLM decision → next-day trades; equity curve & summary stats; backtesting report/visuals.
+            </td>
           </tr>
         </tbody>
       </table>
@@ -137,7 +144,7 @@
 
     <!-- WHAT I DID -->
     <section id="work" class="card">
-      <h2>What I worked on (summary)</h2>
+      <h2>What I worked on</h2>
 
       <div class="grid cols-2">
         <div>
@@ -146,7 +153,7 @@
         </div>
         <div>
           <h3>Decision rule</h3>
-          <p>Threshold = 0.5. Count each model’s probability above threshold as BUY. Majority of signals → BUY/SELL. Internal HOLD used during backtest guard; exposed action favors BUY/SELL by rule.</p>
+          <p>Threshold = 0.5. Count each model’s probability above threshold as BUY. Majority of signals → BUY/SELL. Internal HOLD is used only as a guard in backtests.</p>
         </div>
       </div>
 
@@ -158,13 +165,13 @@
         <tbody>
           <tr>
             <td><strong>NQR.1</strong> Ratio Data Retrieval & Preparation</td>
-            <td>Wrote yfinance fetch + ratio compute (ROE, D/E, NPM) with guards for NaNs/missing</td>
+            <td>Implemented yfinance fetch + ratio compute (ROE, D/E, NPM) with guards for NaNs/missing</td>
             <td><span class="pill ok">Complete</span></td>
             <td>17h</td>
           </tr>
           <tr>
             <td><strong>NQR.2</strong> Model Training Pipeline</td>
-            <td>Implemented FNN (PyTorch) + RF (GridSearch); optional ANFIS path; validation accuracy printouts</td>
+            <td>FNN (PyTorch) + RF (GridSearch); optional ANFIS path; validation accuracy printouts</td>
             <td><span class="pill ok">Complete</span></td>
             <td>19h</td>
           </tr>
@@ -188,16 +195,12 @@
           </tr>
           <tr>
             <td><strong>NQR.6</strong> Backtesting & Evaluation</td>
-            <td>Daily signal engine (features, LLM decision calls w/ retries); next-day execution; equity & stats</td>
+            <td>Daily signal engine (features, LLM decisions with retries); next-day execution; equity & stats</td>
             <td><span class="pill ok">Complete</span></td>
             <td>18h</td>
           </tr>
         </tbody>
       </table>
-
-      <p class="small" style="margin-top:10px">
-        Notes: ANFIS is optional; code tolerates absence of the library. For demo repeatability, FNN/RF are trained on synthetic labels to generate calibrated probabilities for the decision layer (not a predictive finance claim).
-      </p>
     </section>
 
     <!-- EVIDENCE -->
@@ -220,10 +223,10 @@
     <section id="code" class="card">
       <h2>Code pointers</h2>
       <ul class="tight">
-        <li>Repo (branch <code>bojja-sprint4</code>): <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/tree/bojja-sprint4">github.com/.../Sudharshan-AI-Agent-Stock-Prediction</a></li>
+        <li>Repo: <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/tree/bojja-sprint4">github.com/.../Sudharshan-AI-Agent-Stock-Prediction</a></li>
         <li>Main pipeline (ratios → models → inference → decision): <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/blob/bojja-sprint4/src/UI/nqr.py">src/UI/nqr.py</a></li>
         <li>Backtest harness (daily features → LLM decisions → next-day trades): <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/blob/bojja-sprint4/src/Backtesting/nqr_backtesting.py">src/Backtesting/nqr_backtesting.py</a></li>
-        <li>Commits (filtered by author): <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commits/bojja-sprint4/?author=sudharshan02086">Commits page</a></li>
+        <li>Commits: <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commits/bojja-sprint4/?author=sudharshan02086">Commits page</a></li>
       </ul>
     </section>
 
@@ -239,7 +242,61 @@
       </ul>
 
       <h3 style="margin-top:14px">Commits</h3>
-      <p>Full commit history for this branch & author: <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commits/bojja-sprint4/?author=sudharshan02086">link</a></p>
+      <p class="small">Full history (author filter applied): <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commits/bojja-sprint4/?author=sudharshan02086">link</a></p>
+      <table aria-label="Commits table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Commit</th>
+            <th>Description</th>
+            <th>User Story</th>
+            <th>Task</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2025-06-02</td>
+            <td><code>da6b658e231772bd41d706680a4317d13ddb9b57</code></td>
+            <td>NQR Datafetch and ratio calculation</td>
+            <td>NQR</td>
+            <td>NQR.1</td>
+            <td><a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commit/da6b658e231772bd41d706680a4317d13ddb9b57">view</a></td>
+          </tr>
+          <tr>
+            <td>2025-06-22</td>
+            <td><code>4b273d6e33b94feb1e7e6906a68b623e113f31ad</code></td>
+            <td>NQR sprint 2</td>
+            <td>NQR</td>
+            <td>NQR.2, NQR.3</td>
+            <td><a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commit/4b273d6e33b94feb1e7e6906a68b623e113f31ad">view</a></td>
+          </tr>
+          <tr>
+            <td>2025-07-13</td>
+            <td><code>54bfa1e282cd5c7c515179c35af65ba6acfd1ec8</code></td>
+            <td>NQR.4 Crew AI decision agent added</td>
+            <td>NQR</td>
+            <td>NQR.4</td>
+            <td><a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commit/54bfa1e282cd5c7c515179c35af65ba6acfd1ec8">view</a></td>
+          </tr>
+          <tr>
+            <td>2025-08-08</td>
+            <td><code>9a3c0bba6d803c24f87376836515564bf3e2400c</code></td>
+            <td>Updated Crew AI code</td>
+            <td>NQR</td>
+            <td>NQR.4</td>
+            <td><a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commit/9a3c0bba6d803c24f87376836515564bf3e2400c">view</a></td>
+          </tr>
+          <tr>
+            <td>2025-08-08</td>
+            <td><code>ea819030a32c99e8b2a89755d39d805030850c95</code></td>
+            <td>NQR Backtesting code added</td>
+            <td>NQR</td>
+            <td>NQR.5, NQR.6</td>
+            <td><a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commit/ea819030a32c99e8b2a89755d39d805030850c95">view</a></td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3 style="margin-top:14px">Task-hour logs</h3>
       <ul class="tight">
@@ -248,15 +305,11 @@
         <li><a href="Bojja Task Hours Achieved Sprint 3.docx">Bojja Task Hours Achieved Sprint 3</a></li>
         <li><a href="Bojja Task Hours Achieved Sprint 4.docx">Bojja Task Hours Achieved Sprint 4</a></li>
       </ul>
-
-      <p class="small">Place these files alongside this HTML or update the links to wherever you host them.</p>
     </section>
 
     <footer>
       <div>© 2025 · Sudharshan Goud Bojja</div>
-      <div class="small">Built for review by hiring managers and instructors — concise, factual, and code-linked.</div>
     </footer>
   </main>
 </body>
 </html>
-
