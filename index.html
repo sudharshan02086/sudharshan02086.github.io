@@ -1,1 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>NQR — Fundamental ML Pipeline for Next-Quarter Returns | Sudharshan Goud Bojja</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="NQR pipeline (FNN / RF / ANFIS) to predict next-quarter return direction, with Crew AI decision agent and a daily backtest harness. Built by Sudharshan Goud Bojja." />
+
+  <style>
+    :root{
+      --bg:#0b0d10; --panel:#12151a; --ink:#e9eef5; --muted:#aab6c5; --accent:#58a6ff; --ok:#3fb950; --warn:#f2cc60; --err:#ff7b72;
+      --br:16px; --shadow:0 10px 30px rgba(0,0,0,0.35); --max:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    a{color:var(--accent); text-decoration:none} a:hover{text-decoration:underline}
+    header{position:sticky; top:0; backdrop-filter:saturate(180%) blur(8px); background:rgba(11,13,16,0.7); border-bottom:1px solid #20242c; z-index:5}
+    nav{max-width:var(--max); margin:0 auto; display:flex; gap:18px; align-items:center; padding:12px 18px}
+    nav .brand{font-weight:700}
+    nav .spacer{flex:1}
+    nav a.btn{background:var(--accent); color:#06101c; padding:8px 12px; border-radius:12px; font-weight:600}
+    main{max-width:var(--max); margin:30px auto; padding:0 18px}
+
+    .hero{display:grid; grid-template-columns:1.2fr .8fr; gap:24px; align-items:center}
+    .card{background:var(--panel); border:1px solid #20242c; border-radius:var(--br); box-shadow:var(--shadow); padding:22px}
+    h1{font-size:clamp(26px,3.5vw,36px); margin:0 0 12px}
+    h2{font-size:clamp(22px,3vw,28px); margin:26px 0 10px}
+    p.lead{color:var(--muted); margin:8px 0 0}
+    ul.tight{margin:10px 0 0 18px; padding:0} ul.tight li{margin:3px 0}
+    code, pre{background:#0e1217; border:1px solid #222832; border-radius:10px; padding:10px; color:#d5e0f2; overflow:auto}
+    pre{white-space:pre-wrap}
+    .grid{display:grid; gap:16px}
+    .grid.cols-2{grid-template-columns:repeat(2,1fr)}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    @media (max-width:900px){ .hero{grid-template-columns:1fr} .grid.cols-2,.grid.cols-3{grid-template-columns:1fr} }
+
+    table{width:100%; border-collapse:collapse; background:var(--panel); border:1px solid #20242c; border-radius:var(--br); overflow:hidden}
+    th,td{padding:12px 10px; border-bottom:1px solid #20242c; text-align:left; vertical-align:top}
+    th{background:#0f1319; font-weight:600}
+    tr:last-child td{border-bottom:none}
+
+    figure{margin:0}
+    figcaption{color:var(--muted); font-size:14px; margin-top:8px}
+    img.screenshot{width:100%; border-radius:12px; border:1px solid #20242c; display:block}
+
+    .pill{display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:600}
+    .pill.ok{background:rgba(63,185,80,0.12); color:var(--ok); border:1px solid rgba(63,185,80,0.35)}
+    .pill.warn{background:rgba(242,204,96,0.12); color:var(--warn); border:1px solid rgba(242,204,96,0.35)}
+    .pill.err{background:rgba(255,123,114,0.12); color:var(--err); border:1px solid rgba(255,123,114,0.35)}
+
+    footer{color:var(--muted); margin:42px 0 28px; text-align:center}
+    .small{font-size:14px; color:var(--muted)}
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav aria-label="Primary">
+      <div class="brand">NQR — Next-Quarter Return Pipeline</div>
+      <a href="#overview">Overview</a>
+      <a href="#sprints">Sprint Objectives</a>
+      <a href="#work">Work I Did</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#code">Code</a>
+      <a href="#appendix">Appendix</a>
+      <div class="spacer"></div>
+      <a class="btn" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/tree/bojja-sprint4" target="_blank" rel="noopener">Repository</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="card">
+        <h1>Fundamental ML Pipeline (FNN / RF / ANFIS) for Next-Quarter Return Direction</h1>
+        <p class="lead">
+          I built an end-to-end pipeline that computes quarterly ratios (ROE, Debt/Equity, Net Margin),
+          trains three models (Feed-Forward NN, Random Forest, optional ANFIS),
+          exposes an inference JSON API, and combines model probabilities with a Crew AI decision agent.
+          A daily backtest harness executes BUY/SELL signals the next trading day to produce an equity curve.
+        </p>
+        <ul class="tight">
+          <li><strong>Role:</strong> Individual contributor (design, coding, testing, backtest)</li>
+          <li><strong>Core outputs:</strong> Ratio fetch/compute, FNN/RF training, inference API, Crew AI decision logic, daily backtest</li>
+          <li><strong>Name:</strong> Sudharshan Goud Bojja</li>
+          <li><strong>Branch:</strong> <code>bojja-sprint4</code></li>
+          <li><strong>Last updated:</strong> August 17, 2025 (IST)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2 id="overview">Project Overview</h2>
+        <p><strong>Goal:</strong> Predict the <em>sign</em> (up/down) of next-quarter returns from fundamental ratios and return a single trade recommendation.</p>
+        <p><strong>Models:</strong> FNN, RF, ANFIS (optional if library present). All consume the same 3-feature vector.</p>
+        <p><strong>Decision:</strong> Majority-vote/threshold via Crew AI; internal HOLD is used as a guard when probabilities don’t form a majority, but the exposed recommendation is BUY/SELL by rule.</p>
+        <p><strong>Inference JSON:</strong></p>
+        <pre>{
+  "ticker": "AAPL",
+  "fnn_prob": 0.65,
+  "rf_prob": 0.59,
+  "anfis_prob": 0.71
+}</pre>
+      </div>
+    </section>
+
+    <!-- SPRINT OBJECTIVES -->
+    <section id="sprints" class="card">
+      <h2>Sprint Objectives (high level)</h2>
+      <table aria-label="Sprint objectives">
+        <thead>
+          <tr><th>Sprint</th><th>Objective</th><th>Primary Output</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sprint 1 — MVP</td>
+            <td>Fetch quarterly financials and compute ratios; make a minimal pipeline run end-to-end.</td>
+            <td>Ratio retrieval + ratio JSON; basic CLI flow.</td>
+          </tr>
+          <tr>
+            <td>Sprint 2 — Models & API</td>
+            <td>Define/train FNN & RF; add ANFIS path; implement inference API returning probabilities.</td>
+            <td>FNN/RF training & validation; ModelInferAgent JSON.</td>
+          </tr>
+          <tr>
+            <td>Sprint 3 — Decision</td>
+            <td>Implement Crew AI DecisionAgent with thresholded majority logic; cover edge probabilities.</td>
+            <td>Decision agent returning BUY/SELL; strict JSON handling.</td>
+          </tr>
+          <tr>
+            <td>Sprint 4 — Integration & Backtest</td>
+            <td>Integrate pipeline; build daily signal/backtest harness with next-day execution; summarize performance.</td>
+            <td>nqr_backtesting.py, equity curve + summary stats.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- WHAT I DID -->
+    <section id="work" class="card">
+      <h2>What I worked on (summary)</h2>
+
+      <div class="grid cols-2">
+        <div>
+          <h3>Key user story</h3>
+          <p><strong>NQR:</strong> Fundamental ML Pipeline (FNN / RF / ANFIS) to predict next-quarter return direction and output a single BUY/SELL recommendation.</p>
+        </div>
+        <div>
+          <h3>Decision rule</h3>
+          <p>Threshold = 0.5. Count each model’s probability above threshold as BUY. Majority of signals → BUY/SELL. Internal HOLD used during backtest guard; exposed action favors BUY/SELL by rule.</p>
+        </div>
+      </div>
+
+      <h3 style="margin-top:18px">Tasks I completed</h3>
+      <table aria-label="Tasks completed">
+        <thead>
+          <tr><th>Task</th><th>My contribution</th><th>Status</th><th>Actual hours</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>NQR.1</strong> Ratio Data Retrieval & Preparation</td>
+            <td>Wrote yfinance fetch + ratio compute (ROE, D/E, NPM) with guards for NaNs/missing</td>
+            <td><span class="pill ok">Complete</span></td>
+            <td>17h</td>
+          </tr>
+          <tr>
+            <td><strong>NQR.2</strong> Model Training Pipeline</td>
+            <td>Implemented FNN (PyTorch) + RF (GridSearch); optional ANFIS path; validation accuracy printouts</td>
+            <td><span class="pill ok">Complete</span></td>
+            <td>19h</td>
+          </tr>
+          <tr>
+            <td><strong>NQR.3</strong> Inference API Development</td>
+            <td>ModelInferAgent: load artifacts, produce {fnn_prob, rf_prob, anfis_prob} within ~1s on CPU</td>
+            <td><span class="pill ok">Complete</span></td>
+            <td>15h</td>
+          </tr>
+          <tr>
+            <td><strong>NQR.4</strong> Crew AI Decision Agent</td>
+            <td>Majority/threshold logic; strict JSON parsing; edge cases; fallback paths</td>
+            <td><span class="pill ok">Complete</span></td>
+            <td>30h (S3) + 8h (S4)</td>
+          </tr>
+          <tr>
+            <td><strong>NQR.5</strong> Integration & Testing</td>
+            <td>End-to-end integration test; validation on sample tickers; README examples</td>
+            <td><span class="pill ok">Complete</span></td>
+            <td>10h</td>
+          </tr>
+          <tr>
+            <td><strong>NQR.6</strong> Backtesting & Evaluation</td>
+            <td>Daily signal engine (features, LLM decision calls w/ retries); next-day execution; equity & stats</td>
+            <td><span class="pill ok">Complete</span></td>
+            <td>18h</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="small" style="margin-top:10px">
+        Notes: ANFIS is optional; code tolerates absence of the library. For demo repeatability, FNN/RF are trained on synthetic labels to generate calibrated probabilities for the decision layer (not a predictive finance claim).
+      </p>
+    </section>
+
+    <!-- EVIDENCE -->
+    <section id="evidence" class="card">
+      <h2>Evidence (screenshots)</h2>
+      <div class="grid cols-2">
+        <figure>
+          <img class="screenshot" src="1.jpg" alt="Crew AI decision output from main NQR pipeline run" />
+          <figcaption>Screenshot 1 — Crew AI decision JSON from the main pipeline.</figcaption>
+        </figure>
+        <figure>
+          <img class="screenshot" src="2.jpg" alt="Backtest summary with equity curve and performance metrics" />
+          <figcaption>Screenshot 2 — Backtest output (daily signals, next-day execution, performance summary).</figcaption>
+        </figure>
+      </div>
+      <p class="small" style="margin-top:10px">Place <code>1.jpg</code> and <code>2.jpg</code> in the same folder as this HTML or adjust paths.</p>
+    </section>
+
+    <!-- CODE POINTERS -->
+    <section id="code" class="card">
+      <h2>Code pointers</h2>
+      <ul class="tight">
+        <li>Repo (branch <code>bojja-sprint4</code>): <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/tree/bojja-sprint4">github.com/.../Sudharshan-AI-Agent-Stock-Prediction</a></li>
+        <li>Main pipeline (ratios → models → inference → decision): <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/blob/bojja-sprint4/src/UI/nqr.py">src/UI/nqr.py</a></li>
+        <li>Backtest harness (daily features → LLM decisions → next-day trades): <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/blob/bojja-sprint4/src/Backtesting/nqr_backtesting.py">src/Backtesting/nqr_backtesting.py</a></li>
+        <li>Commits (filtered by author): <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commits/bojja-sprint4/?author=sudharshan02086">Commits page</a></li>
+      </ul>
+    </section>
+
+    <!-- APPENDIX -->
+    <section id="appendix" class="card">
+      <h2>Appendix</h2>
+
+      <h3>Summarized user story & acceptance (for reference)</h3>
+      <ul class="tight">
+        <li>Predict up/down next-quarter return using ratios; three models (FNN/RF/ANFIS) share input shape.</li>
+        <li>Inference JSON returns three probabilities; Crew AI converts to a single BUY/SELL by rule.</li>
+        <li>Constraints: data integrity (no NaNs to model), inference ≤ 1s CPU (demo scale), robust to missing quarters.</li>
+      </ul>
+
+      <h3 style="margin-top:14px">Commits</h3>
+      <p>Full commit history for this branch & author: <a target="_blank" rel="noopener" href="https://github.com/sudharshan02086/Sudharshan-AI-Agent-Stock-Prediction/commits/bojja-sprint4/?author=sudharshan02086">link</a></p>
+
+      <h3 style="margin-top:14px">Task-hour logs</h3>
+      <ul class="tight">
+        <li><a href="Bojja Task Hours Achieved Sprint 1.docx">Bojja Task Hours Achieved Sprint 1</a></li>
+        <li><a href="Bojja Task Hours Achieved Sprint 2.docx">Bojja Task Hours Achieved Sprint 2</a></li>
+        <li><a href="Bojja Task Hours Achieved Sprint 3.docx">Bojja Task Hours Achieved Sprint 3</a></li>
+        <li><a href="Bojja Task Hours Achieved Sprint 4.docx">Bojja Task Hours Achieved Sprint 4</a></li>
+      </ul>
+
+      <p class="small">Place these files alongside this HTML or update the links to wherever you host them.</p>
+    </section>
+
+    <footer>
+      <div>© 2025 · Sudharshan Goud Bojja</div>
+      <div class="small">Built for review by hiring managers and instructors — concise, factual, and code-linked.</div>
+    </footer>
+  </main>
+</body>
+</html>
 
